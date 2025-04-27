@@ -15,6 +15,9 @@ Adjust the passenger details below and click **Predict Survival**!
 def load_model():
     with open('xgboost_model.pkl', 'rb') as model_file:
         return pickle.load(model_file)
+except Exception as e:
+        st.error(f"Error loading model: {str(e)}")
+        return None
 model = load_model()
 
 # Input Features
