@@ -13,7 +13,7 @@ Adjust the passenger details below and click **Predict Survival**!
 # Load the trained model
 @st.cache_resource
 def load_model():
-    with open('titanic_xgboost_model.pkl', 'rb') as model_file:
+    with open('xgboost_regressor_model.pkl', 'rb') as model_file:
         return pickle.load(model_file)
 model = load_model()
 
