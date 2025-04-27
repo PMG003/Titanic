@@ -1,20 +1,21 @@
 import streamlit as st
 import pandas as pd
-import pickle
+import joblib
 
 # App Configuration
 st.set_page_config(page_title="🚢 Titanic Survival Predictor", layout="centered")
 st.title("🚢 Titanic Survival Predictor")
+
 st.markdown("""
-Predict whether a passenger survived the Titanic disaster using a trained XGBoost model.
+Predict whether a passenger survived the Titanic disaster using a trained **Random Forest** model.
 Adjust the passenger details below and click **Predict Survival**!
 """)
 
 # Load the trained model
 @st.cache_resource
 def load_model():
-    with open('xgboost_model.pkl', 'rb') as model_file:
-        return pickle.load(model_file)
+    return joblib.load('random_forest_model.pkl')
+
 model = load_model()
 
 # Input Features
@@ -37,14 +38,13 @@ with col2:
 family_size = sibsp + parch
 embarked_code = embarked[0]  # Extracts 'C', 'Q', or 'S'
 
-# Convert categorical features to model-friendly format
+# Convert categorical features
 input_data = {
     'Pclass': pclass,
-    'Sex': 1 if sex == "Male" else 0,  # Female=0, Male=1
+    'Sex': 1 if sex == "Male" else 0,
     'Age': age,
     'Fare': fare,
     'FamilySize': family_size,
-    # One-hot encoding for categoricals (match training data structure)
     'Embarked_1': 1 if embarked_code == 'C' else 0,
     'Embarked_2': 1 if embarked_code == 'Q' else 0,
     'Embarked_3': 1 if embarked_code == 'S' else 0,
@@ -54,7 +54,7 @@ input_data = {
     'Title_4': 1 if title == "Master" else 0
 }
 
-# Create DataFrame with all expected columns
+# Ensure DataFrame columns match model's expectation
 expected_columns = [
     'Pclass', 'Sex', 'Age', 'Fare', 'FamilySize',
     'Embarked_1', 'Embarked_2', 'Embarked_3',
@@ -66,11 +66,11 @@ input_df = pd.DataFrame([input_data], columns=expected_columns)
 if st.button("🔮 Predict Survival"):
     try:
         prediction = model.predict(input_df)[0]
-        survival_status = "Survived 🌟" if prediction == 1 else "Did Not Survive 💔"
+        survival_status = "✅ Survived" if prediction == 1 else "❌ Did Not Survive"
         st.success(f"**Prediction:** {survival_status}")
     except Exception as e:
-        st.error(f"⚠️ Error: {str(e)}")
+        st.error(f"⚠️ Error during prediction: {str(e)}")
 
 # Footer
 st.markdown("---")
-st.markdown("Built with ❤️ by [Your Name] | Model: `TitanicSurvivalXGBoost`")
+st.markdown("Built with ❤️ by [Your Name] | Model: `Random Forest Titanic Survival`")
