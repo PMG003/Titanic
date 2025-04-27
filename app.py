@@ -5,8 +5,8 @@ import pandas as pd
 import joblib
 
 # --- Load Model and Encoders ---
-@st.cache(allow_output_mutation=True)
-def load_model_and_encoders():
+@st.cache_resource
+def load_model():   
     model = joblib.load('random_forest_model.pkl')
     label_encoders = joblib.load('label_encoders.pkl')  # assuming you saved these during training
     return model, label_encoders
