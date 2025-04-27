@@ -2,6 +2,16 @@ import streamlit as st
 import pandas as pd
 import joblib
 
+import os
+
+@st.cache_resource
+def load_model():
+    if os.path.exists('random_forest_model.pkl'):
+        return joblib.load('random_forest_model.pkl')
+    else:
+        st.error("⚠️ Model file not found! Please upload 'random_forest_model.pkl'.")
+        st.stop()
+
 # App Configuration
 st.set_page_config(page_title="🚢 Titanic Survival Predictor", layout="centered")
 st.title("🚢 Titanic Survival Predictor")
