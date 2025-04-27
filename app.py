@@ -1,17 +1,13 @@
-# titanic_app.py
-
 import streamlit as st
 import pandas as pd
 import joblib
 
-# --- Load Model and Encoders ---
+# --- Load Model ---
 @st.cache_resource
-def load_model_and_encoders():   
-    model = joblib.load('random_forest_model.pkl')
-    label_encoders = joblib.load('label_encoders.pkl')  # assuming you saved these during training
-    return model, label_encoders
+def load_model():
+    return joblib.load('random_forest_model.pkl')
 
-model, label_encoders = load_model_and_encoders()
+model = load_model()
 
 # --- App Layout ---
 st.title("🎟️ Titanic Passenger Survival Prediction")
@@ -32,27 +28,19 @@ with st.form("passenger_form"):
 # --- Prediction Logic ---
 if submit:
     try:
-        # Preprocess input
-        embarked_mapping = {
-            "Cherbourg (C)": "C",
-            "Queenstown (Q)": "Q",
-            "Southampton (S)": "S"
-        }
+        # Manual encoding
+        gender_mapping = {'Male': 1, 'Female': 0}
+        embarked_mapping = {'Cherbourg (C)': 0, 'Queenstown (Q)': 1, 'Southampton (S)': 2}
         
         input_data = pd.DataFrame({
             'Pclass': [passenger_class],
-            'Sex': [gender],
+            'Sex': [gender_mapping[gender]],
             'Age': [age],
             'Fare': [fare],
             'SibSp': [siblings],
             'Parch': [parents],
             'Embarked': [embarked_mapping[embarked]]
         })
-
-        # Label Encode necessary columns
-        for column in ['Sex', 'Embarked']:
-            if column in label_encoders:
-                input_data[column] = label_encoders[column].transform(input_data[column].astype(str))
 
         # Predict
         prediction = model.predict(input_data)[0]
@@ -65,3 +53,4 @@ if submit:
 
     except Exception as e:
         st.error(f"⚠️ Error during prediction: {e}")
+
